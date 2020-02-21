@@ -116,6 +116,8 @@ CHAR T FONT-SHAPE
 00000000
 CHAR R FONT-SHAPE
 
+
+\ aggiungere lettere per the maze
 DROP
 HEX
 
