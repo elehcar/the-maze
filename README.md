@@ -2,9 +2,12 @@
 Project made by computer engineering for Embedded System
 
 Files must be uploaded to pijFORTH in the following order:
-1. se-ans
-2. init
-3. font
-4. write_char
-5. button
-6. start
+
+1. se-ans.f
+2. color.f
+3. input_sel.f
+4. pulldown.f
+5. font.f
+6. init.f
+7. write_char
+8. game.f
