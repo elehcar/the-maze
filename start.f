@@ -1,6 +1,0 @@
-
-: SET_UP DESKTOP MAZE START ;
-
-
-
-
