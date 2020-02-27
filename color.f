@@ -1,4 +1,4 @@
-\ Questo file contiene le definzioni dei colori
+\ Questo file contiene le definizioni dei colori
 
 HEX
 

@@ -5,7 +5,7 @@ DECIMAL
 VARIABLE END_LOOP
 VARIABLE BASE_ADDR
 
-\ Parola utilizzata per creare lo spazio nel campo dati del dictionary necessario per il font
+\ Parola utilizzata per creare lo spazio nel campo dati del diziionario necessario per il font
 : FONT CREATE HERE  \ ( -- baseaddr) 
 	8 256 * ALLOT DOES> \ ( u -- baseaddr) 
 	SWAP 8 * + ; 

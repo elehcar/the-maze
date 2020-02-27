@@ -1,4 +1,4 @@
-\ In questo file vengono definite le parole necessarie per la scrittura dei caratteri a video, una volta inseriti nel dictionary con il file font.f . Inoltre vengono definite delle parole per scrivere delle stringhe necessarie alla grafica del gioco
+\ In questo file vengono definite le parole necessarie per la scrittura dei caratteri a video, una volta inseriti nel dizionario con il file font.f . Inoltre vengono definite delle parole per scrivere delle stringhe necessarie alla grafica del gioco
 HEX
 
 VARIABLE MAT_INDEX

@@ -210,7 +210,7 @@ VARIABLE STOP_CHECK
 
 \ ( green -- )
 : GAME_CONTROL
-	\ quadruplichiamo il greene per poterlo passare a tutte le parole che controllano il valore dei pulsanti
+	\ quadruplichiamo il green per poterlo passare a tutte le parole che controllano il valore dei pulsanti
 	\ ( green -- green green green green )
 	DUP 2DUP
 	\ ( green green green green -- green green green )

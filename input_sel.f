@@ -22,7 +22,7 @@ HEX
 
 \ Questa parola ci permette, a partire dal numero di una porta, di ottenere l'indirizzo del registro GPFSEL e il bit n-esimo di tale registro da cui iniziare a scrivere
 
-( gpio_number -- GPFSELN offset )
+\ ( gpio_number -- GPFSELN offset )
 : GPFSEL 
 	\ Effettuiamo la divisione per 10 del numero di porta perché ogni registro GPFSEL contiene funzioni per 10 porte, questo lo moltiplichiamo per 4
 	\ ovvero la grandezza in byte di un registro,  e lo sommiamo al primo registro GPFSEL0 per ottenere l'indirizzo del GPFSEL corretto 
@@ -36,7 +36,7 @@ HEX
 
 \ Attraverso questa definizione possiamo specificare il funzionamento come input della porta GPIO indicata
 
-( gpio_number -- )
+\ ( gpio_number -- )
 : INPUT_SEL
 	\ Ricaviamo con la parola GPFSEL il registro GPFSEL relativo alla porta specificata e l'offset, inoltre inseriamo 7 che rappresenta una maschera con 3 bit a 1
 	\ ( gpio_number -- GPFSELN 7 offset ) 
