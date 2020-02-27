@@ -1,56 +1,151 @@
+\ In questo file vengono definite le parole necessarie per la scrittura dei caratteri a video, una volta inseriti nel dictionary con il file font.f . Inoltre vengono definite delle parole per scrivere delle stringhe necessarie alla grafica del gioco
 HEX
 
-VARIABLE NEW_INDEX
-VARIABLE CONT
+VARIABLE MAT_INDEX
+VARIABLE CONT1
 VARIABLE CONT2
 VARIABLE CONT3
 
 
 DECIMAL
 
-\ ( dato un valore a 32 bit restituisce il colore che corrisponde al bit n-esimo (che dipende da CONT) )
-\ ( 32 bit val -- color )
-: GET_COLOR 1 CONT3 @ LSHIFT AND 0 = IF YELLOW ELSE BG_COLOR THEN CONT3 @ 1 - CONT3 ! ;
+\ Definiamo una parola per duplicare i primi tre valori presenti sullo stack
+\ ( x y z - x y z x y z )
+: 3DUP DUP 2OVER ROT ;
 
-\ ( memorizza il colore nell'indirizzo corrente e lo incrementa )
+ 
+\ Definiamo una parola che permetta, dato un valore a 32 bit, di ottenere il colore che corrisponde al bit n-esimo: 0 corrisponde al colore di sfondo delle stringhe, 1 al colore di scrittura dei caratteri
+\ ( val_32bit -- color )
+: GET_COLOR
+	\ generiamo un numero che abbia tutti i bit pari a 0 ad eccezione del bit di posizione pari al valore specificato in CONT3 
+	\ (val_32bit -- val_32bit mask_val )
+	1 CONT3 @ LSHIFT 
+	\ otteniamo 0 se il bit n-esimo del valore specificato era 0, altrimenti mask_val
+	AND 0 = 
+	IF 
+	   \ ( -- color_bg )
+	   YELLOW 
+	ELSE
+	   \ ( -- color_char )
+	   BG_COLOR 
+	THEN
+	   \ decrementiamo il conteggio dei bit e aggiorniamo il valore della variabile CONT3 
+	   CONT3 @ 1 - CONT3 ! ;
+
+\ Scrive il colore presente sullo stack nella posizione specificata nella variabile MAT_INDEX e lo aggiorna alla colonna successiva
 \ ( color -- )
-: SET_PIXEL NEW_INDEX @ DUP ROT SWAP ! 4 + NEW_INDEX ! ;
+: SET_PIXEL 
+	MAT_INDEX @ 
+	DUP ROT SWAP ! 4 + 
+	MAT_INDEX ! ;
 
-\ ( disegna una riga della matrice a seconda del valore dei primi 8 bit del valore passato)
-\ ( 32 bit val -- )
-: SET_ROW 0 CONT ! BEGIN DUP GET_COLOR SET_PIXEL 1 CONT @ + DUP CONT ! 8 = UNTIL DROP ;
+\ Parola utilizzata per disegnare una riga della matrice a seconda del valore di 8 bit del numero passato sullo stack
+\ ( val_32bit -- )
+: SET_ROW 
+	\ Usiamo la variabile CONT1 per contare il numero di bit considerati, da 0 a 8
+	0 CONT1 ! 
+	BEGIN 
+	   \ ( val_32bit -- val_32bit color )
+	   DUP GET_COLOR
+	   \ ( val_32bit color -- val_32bit )
+	   SET_PIXEL 
+	   \ verifichiamo la condizione di uscita , cioè che il valore del contatore sia uguale a 8
+	   1 CONT1 @ + DUP CONT1 ! 8 = 
+	\ se è verificata ripuliamo lo stack
+	\ ( val_32bit -- )
+	UNTIL 
+	   DROP ;
 
-\ ( a partire dall'indirizzo corrente vado all'inizio della riga successiva) 
-: NEW_ROW NEW_INDEX @ 4 8 * - 4 WIDTH * + NEW_INDEX ! ;
-\ ( disegna 4 righe corrispondenti al valore passato )
-\ ( 32bitval -- ) 
-: HALF_MATRIX 31 CONT3 ! 0 CONT2 ! BEGIN DUP SET_ROW NEW_ROW 1 CONT2 @ + DUP CONT2 ! 4 = UNTIL DROP ;
+
+\ Con questa parola a partire dall'indirizzo corrente spostiamo l'indirizzo all'inizio della riga successiva
+: NEW_ROW 
+	\ spostiamo l'indirizzo nella prima colonna in cui dobbiamo scrivere
+	MAT_INDEX @ 4 8 * - 
+	\ spostiamo l'indirizzo alla riga successiva e lo salviamo nella variabile MAT_INDEX
+	4 WIDTH * + MAT_INDEX ! ;
+
+\ Utilizziamo questa parola per scrivere quattro righe del carattere specificato
+\ ovvero scriviamo la forma corrispondente a 32 bit
+\ ( val_32bit -- ) 
+: HALF_MATRIX 
+	\ usiamo due variabili:
+	\ CONT3 conta il numero di bit valutati a partire da 31 fino a 0
+	\ CONT2 conta le righe scritte da 0 a 4
+	31 CONT3 ! 0 CONT2 ! 
+	BEGIN 
+	   \ ( val_32bit -- val_32bit val_32bit)
+	   DUP
+	   \ scriviamo una riga e spostiamo l'indirizzo in cui scrivere all'inizio della riga successiva
+	   \ (val_32bit val_32bit -- val_32bit)
+	   SET_ROW NEW_ROW 
+	   \ verifichiamo la condizione di uscita, ovvero che il contatore sia pari a 4
+	   1 CONT2 @ + DUP CONT2 ! 4 = 
+	\ se è verificata ripuliamo lo stack
+	\ ( val_32bit -- )
+	UNTIL 
+	   DROP ;
 
 
-\ ( restituisce i 2 valori a 32 bit che corrispondo alla forma della lettera passata )
-\ ( char -- )
-: GET_CHAR 8 * BASE_ADDR @ + DUP @ SWAP 4 + @ ;
+\ Parola usata per ottenere i 2 valori a 32 bit che corrispondo alla forma del carattere specificato presente nel dictionary
+\ ( char -- first_half second_half )
+: GET_CHAR
+	\ otteniamo l'indirizzo della forma sommando al base_addr del font l'offset dato dal carattere moltiplicato per 8 
+	\ ( char -- shape_addr )
+	8 * BASE_ADDR @ + 
+	\ otteniamo la prima metà della forma prendendo il valore contenuto nel dictionary nell'indirizzo calcolato
+	\ ( shape_addr -- first_half shape_addr)
+	DUP @ SWAP 
+	\ per ottenere la seconda metà ovvero i successivi 4 byte aggiungiamo 4 all'indirizzo precedente
+	\ ( first_half shape_addr -- first_half second_half )
+	4 + @ ;
 
-\ ( disegna la lettera passata a partire dalla colonna e riga specificata ) 
+\ Questa parola scrive un carattere specificato nelle coordinate indicate
 \ ( char n_col n_row -- )
-: MATRIX FIND_ADDRESS NEW_INDEX ! GET_CHAR HALF_MATRIX HALF_MATRIX ;
+: MATRIX 
+	\ usiamo la variabile MAT_INDEX per memorizzare l'indirizzo corrispondente alle coordinate indicate
+	FIND_ADDRESS MAT_INDEX ! 
+	\ ( char -- first_half second_half )
+	GET_CHAR 
+	\ (first_half second_half -- first_half )
+	HALF_MATRIX 
+	\ (first_half -- )
+	HALF_MATRIX ;
 
+\ passaggio iterativo per la scrittura delle parole
+\ ( char n_row n_col --  n_row n_col_new n_col_new )
+: CYCLE 
+	\ ( char n_row n_col -- char n_col n_row char n_col n_row )
+	SWAP 3DUP 
+	\ (char n_col n_row char n_col n_row -- n_col n_row )
+	MATRIX ROT DROP 
+	\ otteniamo n_col_new incrementando di 8 l'indice di colonna precedente
+	SWAP 8 + DUP ;
 
-: FAIL 70 57 310 MATRIX 65 67 310 MATRIX 73 77 310 MATRIX 76 87 310 MATRIX ;
-: OK 79 65 310 MATRIX 75 75 310 MATRIX ;
-: WRITE_START 83 52 310 MATRIX 84 62 310 MATRIX 65 72 310 MATRIX 82 82 310 MATRIX 84 92 310 MATRIX ;
+\ Definiamo delle parole che permettono di scrivere delle stringhe di caratteri sfruttando la parola CYCLE, inserendo in ogni parola il numero ASCII decimale corrispondente al carattere e le coordinate in cui inserire la prima lettera
 
-: GO 71 65 310 MATRIX 79 75 310 MATRIX ;
+: FAIL 76 73 65 70 310 60 BEGIN CYCLE 92 = UNTIL 2DROP ;
 
-: THE_MAZE 84 52 99 MATRIX 72 62 99 MATRIX 69 72 99 MATRIX 77 92 99 MATRIX 65 102 99 MATRIX 90 112 99 MATRIX 69 122 99 MATRIX ;
+: WIN 78 73 87 310 70 BEGIN CYCLE 94 = UNTIL 2DROP ;
 
-: YEAR 49 786 620 MATRIX 57 794 620 MATRIX 47 802 620 MATRIX 50 810 620 MATRIX 48 818 620 MATRIX ;
-: SISTEMI_EMBEDDED 83 650 620 MATRIX 73 658 620 MATRIX 83 666 620 MATRIX 84 674 620 MATRIX 69 682 620 MATRIX 77 690 620 MATRIX 73 698 620 MATRIX 44 706 620 MATRIX 69 714 620 MATRIX 77 722 620 MATRIX 66 730 620 MATRIX 69 738 620 MATRIX 68 746 620 MATRIX 68 754 620 MATRIX 69 762 620 MATRIX 68 770 620 MATRIX YELLOW COLOR ! 650 619 826 619 DRAW_ROW ;
+: START 84 82 65 84 83 310 60 BEGIN CYCLE 100 = UNTIL 2DROP ;
 
-: FOOTER SISTEMI_EMBEDDED 44 778 620 MATRIX YEAR ;
+: GO 79 71 310 70 BEGIN CYCLE 86 = UNTIL 2DROP ;
 
+: THE_MAZE 69 90 65 77 44 69 72 84 99 60 BEGIN CYCLE 124 = UNTIL 2DROP ;
+  
+: YEAR 48 50 47 57 49 620 786 BEGIN CYCLE 826 = UNTIL 2DROP ;
 
+: SISTEMI 73 77 69 84 83 73 83 620 650 BEGIN CYCLE 706 = UNTIL 2DROP ;
+: EMBEDDED 68 69 68 68 69 66 77 69 620 714 BEGIN CYCLE 778 = UNTIL 2DROP ; 
 
+\ Inseriamo uno spazio tra due parole definite in precedenza
+: SISTEMI_EMBEDDED SISTEMI 44 706 620 MATRIX EMBEDDED ;
 
+\ Creiamo il footer combinado le parole SISTEMI_EMBEDDED e YEAR con uno spazio, aggiungendo inoltre una riga in alto per una grafica migliore
+: FOOTER SISTEMI_EMBEDDED 44 778 620 MATRIX YEAR YELLOW COLOR ! 650 619 826 619 DRAW_ROW ;
+
+\ Attraverso questa parola possiamo inizializzare tutto l'ambiente di gioco
+
+: SET_UP DESKTOP MAZE LOGO THE_MAZE FOOTER ;
 
 

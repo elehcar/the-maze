@@ -1,31 +1,45 @@
+\ Questo file contiene la definizione del font utilizzato nel programma
+
 DECIMAL
-: 2>R >R >R ;
-: 2R> R> R> ;
-: 3DUP DUP 2OVER ROT ;
-: R@ R> DUP >R ;
-: C, HERE @ C! 1 HERE +! ;
 
 VARIABLE END_LOOP
 VARIABLE BASE_ADDR
-: FONT CREATE HERE 8 256 * ALLOT DOES> SWAP 8 * + ;
 
-\ ( baseaddr c c c c c c c c cindex -- baseaddr )
-\ : FONT-SHAPE 9 PICK SWAP 8 * + DUP 8 + SWAP END_LOOP1 ! BEGIN DUP ROT SWAP C! 1 -  DUP END_LOOP1 @ = UNTIL DROP ;
-: FONT-SHAPE 9 PICK SWAP 8 * + DUP 8 + END_LOOP ! BEGIN DUP ROT SWAP C! 1 + DUP END_LOOP @ = UNTIL DROP ;
- 
+\ Parola utilizzata per creare lo spazio nel campo dati del dictionary necessario per il font
+: FONT CREATE HERE  \ ( -- baseaddr) 
+	8 256 * ALLOT DOES> \ ( u -- baseaddr) 
+	SWAP 8 * + ; 
 
 
-\ ( baseaddr cindex1 cindex2 -- )
-\ : FONT-SHAPE-COPY  >R OVER SWAP 8 * + SWAP R> 8 * + 8 CMOVE ; 
+\ Usiamo questa parola per inserire la matrice 8x8 nella posizione corrispondente al baseaddr del font più l'offset del carattere
+\ ( baseaddr c c c c c c c c cindex  -- baseaddr )
+: FONT-SHAPE
+	9 PICK SWAP 8 * + DUP 8 + 
+	\ ( baseaddr c c c c c c c c cindex  -- baseaddr c c c c c c c c start_char end_char )
+	\ calcoliamo il primo indirizzo start_char in cui inserire il carattere come baseaddr+(cindex*8)
+	\ calcoliamo l'indirizzo di fine ciclo end_char come baseaddr+(cindex*8)+8 e lo memorizziamo nella variabile END_LOOP
+	END_LOOP ! 
+ 	BEGIN 
+	   \ ( baseaddr c c c c c c c c start_char  -- baseaddr c c c c c c c start_char c start_char )
+	   DUP ROT SWAP 
+	   \ inseriamo ogni riga della matrice nell'opportuno indirizzo calcolato da start_char, incrementato ogni volta di 1
+	   C! 1 + DUP END_LOOP @ = 
+	   \ verifichiamo la condizione di fine ciclo confrontando il contatore (start_char + i) con il contenuto di end_loop
+	   \ se è verificata ripuliamo lo stack lasciando solo il baseaddr
+	UNTIL 
+	   \ ( baseaddr start_char+8 -- baseaddr )
+	   DROP ;
 
-\ : FONT-SHAPES OVER 2>R FONT-SHAPE 2R> TUCK  1 + SWAP END_LOOP ! BEGIN 3DUP FONT-SHAPE-COPY 1 + DUP END_LOOP @ = UNTIL RDROP ;
-
+\ Parola che setta la base binaria 
 : BINARY 2 BASE ! ;
 
-BINARY
-FONT TheMaze BASE_ADDR !
+\ Definiamo il font e inseriamo nello spazio creato le lettere necessarie al programma
 
-BASE_ADDR @
+BINARY
+
+\ Utilizziamo la variabile BASE_ADDR per poter poi accedere ai diversi caratteri
+
+FONT TheMaze DUP BASE_ADDR !
 
 00000000
 00000000
@@ -72,80 +86,20 @@ CHAR D FONT-SHAPE
 01101000
 01111000
 01101000
+01100010
+11111110
+00000000
+CHAR E FONT-SHAPE
+
+11111110
+01100010
+01101000
+01111000
+01101000
 01100000
 11110000
 00000000
 CHAR F FONT-SHAPE
-
-01111000
-00110000
-00110000
-00110000
-00110000
-00110000
-01111000
-00000000
-CHAR I FONT-SHAPE
-
-11110000
-01100000
-01100000
-01100000
-01100010
-01100110
-11111110
-00000000
-CHAR L FONT-SHAPE
-
-00111000
-01101100
-11000110
-11000110
-11000110
-01101100
-00111000
-00000000
-CHAR O FONT-SHAPE
-
-11100110
-01100110
-01101100
-01111000
-01101100
-01100110
-11100110
-00000000
-CHAR K FONT-SHAPE
-
-01111000
-11001100
-11100000
-01110000
-00011100
-11001100
-01111000
-00000000
-CHAR S FONT-SHAPE
-
-11111100
-10110100
-00110000
-00110000
-00110000
-00110000
-01111000
-00000000
-CHAR T FONT-SHAPE
-
-11111100
-01100110
-01100110
-01111100
-01101100
-01100110
-11100110
-00000000
-CHAR R FONT-SHAPE
 
 00111100
 01100110
@@ -167,15 +121,25 @@ CHAR G FONT-SHAPE
 00000000
 CHAR H FONT-SHAPE
 
-11111110
-01100010
-01101000
 01111000
-01101000
+00110000
+00110000
+00110000
+00110000
+00110000
+01111000
+00000000
+CHAR I FONT-SHAPE
+
+11110000
+01100000
+01100000
+01100000
 01100010
+01100110
 11111110
 00000000
-CHAR E FONT-SHAPE
+CHAR L FONT-SHAPE
 
 11000110
 11101110
@@ -187,6 +151,66 @@ CHAR E FONT-SHAPE
 00000000
 CHAR M FONT-SHAPE
 
+11000110
+11100110
+11110110
+11011110
+11001110
+11000110
+11000110
+00000000
+CHAR N FONT-SHAPE
+
+00111000
+01101100
+11000110
+11000110
+11000110
+01101100
+00111000
+00000000
+CHAR O FONT-SHAPE
+
+11111100
+01100110
+01100110
+01111100
+01101100
+01100110
+11100110
+00000000
+CHAR R FONT-SHAPE
+
+01111000
+11001100
+11100000
+01110000
+00011100
+11001100
+01111000
+00000000
+CHAR S FONT-SHAPE
+
+11111100
+10110100
+00110000
+00110000
+00110000
+00110000
+01111000
+00000000
+CHAR T FONT-SHAPE
+
+11000110
+11000110
+11000110
+11010110
+11111110
+11101110
+11000110
+00000000
+CHAR W FONT-SHAPE
+
 11111110
 11000110
 10001100
@@ -196,16 +220,6 @@ CHAR M FONT-SHAPE
 11111110
 00000000
 CHAR Z FONT-SHAPE
-
-01111000
-11001100
-00001100
-00111000
-01100000
-11000100
-11111100
-00000000
-CHAR 2 FONT-SHAPE
 
 01111100
 11000110
@@ -229,6 +243,16 @@ CHAR 1 FONT-SHAPE
 
 01111000
 11001100
+00001100
+00111000
+01100000
+11000100
+11111100
+00000000
+CHAR 2 FONT-SHAPE
+
+01111000
+11001100
 11001100
 01111100
 00001100
@@ -247,13 +271,6 @@ CHAR 9 FONT-SHAPE
 00000000
 CHAR / FONT-SHAPE
 
+\ ( baseaddr -- )
 DROP
-HEX
-
-
-
-   
-
-
-
 
