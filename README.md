@@ -9,5 +9,5 @@ Files must be uploaded to pijFORTH in the following order:
 4. pulldown.f
 5. font.f
 6. init.f
-7. write_char
+7. write_char.f
 8. game.f
