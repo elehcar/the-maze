@@ -90,12 +90,13 @@ DECIMAL
 \ ( char -- first_half second_half )
 : GET_CHAR
 	\ otteniamo l'indirizzo della forma sommando al base_addr del font l'offset dato dal carattere moltiplicato per 8 
+	\ dove 8 è la dimensione in byte di ciascuna forma del font
 	\ ( char -- shape_addr )
 	8 * BASE_ADDR @ + 
 	\ otteniamo la prima metà della forma prendendo il valore contenuto nel dictionary nell'indirizzo calcolato
 	\ ( shape_addr -- first_half shape_addr)
 	DUP @ SWAP 
-	\ per ottenere la seconda metà ovvero i successivi 4 byte aggiungiamo 4 all'indirizzo precedente
+	\ per ottenere la seconda metà ovvero la word contigua aggiungiamo 4 all'indirizzo precedente
 	\ ( first_half shape_addr -- first_half second_half )
 	4 + @ ;
 
