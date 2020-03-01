@@ -32,7 +32,7 @@ DECIMAL
 	   \ decrementiamo il conteggio dei bit e aggiorniamo il valore della variabile CONT3 
 	   CONT3 @ 1 - CONT3 ! ;
 
-\ Scrive il colore presente sullo stack nella posizione specificata nella variabile MAT_INDEX e lo aggiorna alla colonna successiva
+\ La parola seguente scrive il colore presente sullo stack nella posizione specificata nella variabile MAT_INDEX e lo aggiorna alla colonna successiva
 \ ( color -- )
 : SET_PIXEL 
 	MAT_INDEX @ 
@@ -86,7 +86,7 @@ DECIMAL
 	   DROP ;
 
 
-\ Parola usata per ottenere i 2 valori a 32 bit che corrispondo alla forma del carattere specificato presente nel dictionary
+\ Parola usata per ottenere i 2 valori a 32 bit che corrispondo alla forma del carattere specificato presente nel dizionario
 \ ( char -- first_half second_half )
 : GET_CHAR
 	\ otteniamo l'indirizzo della forma sommando al base_addr del font l'offset dato dal carattere moltiplicato per 8 
