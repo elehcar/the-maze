@@ -9,7 +9,7 @@ VARIABLE START_POINT
 VARIABLE START_CHECK
 VARIABLE STOP_CHECK
 
-\ Parola che, dato il numero della porta GPIO, restituisce la maschera corretta ovvero un numero che ha tutte le cifre pari a 0 ad eccezione del bit di posto pari al valore passato
+\ Parola che, dato il numero del pin GPIO, restituisce la maschera corretta ovvero un numero che ha tutte le cifre pari a 0 ad eccezione del bit di posto pari al valore passato
 \ ( button_gpio -- gpio_mask )
 : GPIO_MASK 1 SWAP LSHIFT ;
 
