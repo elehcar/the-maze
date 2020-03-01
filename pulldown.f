@@ -1,4 +1,4 @@
-\ In questo file settiamo i resistori interni delle GPIO connesse ai pulsanti in modo da avere un comportamento pull-down
+\ In questo file settiamo i resistori interni dei pin GPIO connessi ai pulsanti in modo da avere un comportamento pull-down
 
 HEX
 
@@ -13,7 +13,7 @@ HEX
 01 GPPUD !
 \ Aspettiamo 150 cicli
 150 DELAY
-\ Settiamo a 1 i bit corrispondenti alle GPIO di cui vogliamo abilitare il resistore Pull-Down interno
+\ Settiamo a 1 i bit corrispondenti ai GPIO di cui vogliamo abilitare il resistore Pull-Down interno
 BC10000 GPCLK0 !
 \ Aspettiamo 150 cicli in modo che il segnale di controllo abbia effetto sui pin
 150 DELAY
